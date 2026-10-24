@@ -30,7 +30,7 @@ Build scripts (run them in order):
 | Script | What it does |
 |---|---|
 | `build-uboot.sh` | Clones U-Boot and TF-A (or uses Rockchip's binary BL31), builds the bootloader and SPL loader for each target board |
-| `build-kernel-mainline.sh` | Clones `flipper-linux-kernel`, merges config fragments from `configs/linux/`, builds arm64 kernel `.deb` packages and DTBs |
+| `build-kernel-mainline.sh` | Clones `flipper-linux-kernel`, applies patches from `patches/linux/`, merges config fragments from `configs/linux/`, builds arm64 kernel `.deb` packages and DTBs |
 | `build-kernel-bsp.sh` | Clones Rockchip's BSP kernel (`develop-6.1`), fetches vendor DTS files, applies patches from `patches/bsp/`, builds arm64 kernel packages |
 | `build-images.sh` | Assembles complete GPT disk images for all boards you've built bootloaders for; calls `build-rootfs-img.sh` to build the root filesystem if it doesn't exist yet |
 | `build-rootfs-img.sh` | Runs debos on `debian-rk3576-img.yaml` to install the kernel into a partitioned image, then zeekstd-compresses it |
@@ -43,6 +43,8 @@ Other directories:
 - `overlays/` — files copied into the root filesystem: systemd units, NetworkManager config, Broadcom Wi-Fi/BT firmware, KDE Plasma settings, SDDM autologin, U-Boot menu config
 - `vendor-dts/` — Luckfox Omni3576 DTS/DTSI files and BSP device tree overlay sources (`.dtso`) for the EVB evaluation board and shared peripherals
 - `patches/bsp/` — kernel patches applied to the BSP tree (TypeC, panfrost DTS, audio card)
+- `patches/linux/` — kernel patches applied to the mainline tree (Anbernic RG Vita Pro joypad MCU, touchscreen reset, fuel gauge, DTS)
+- `configs/u-boot-defconfigs/` — U-Boot defconfigs for boards the U-Boot tree has none for, copied into it before the build
 - `rk_unpacker/` — standalone Python tool to extract partition images from Rockchip `update.img` files
 - `prebuilt/`, `src/`, `out/` — build outputs and source clones; all gitignored
 
@@ -63,6 +65,7 @@ Every push to this repository (and to the tracked branches of its dependencies) 
 | <div align="center"><img width="200" src="https://github.com/user-attachments/assets/b297e6ab-88d8-4085-a0d2-b989462414b1"><br><sub><a href="https://www.luckfox.com/EN-Luckfox-Omni3576">Luckfox Omni3576</a></sub></div> | `omni3576` | |
 | <div align="center"><img width="200" src="https://github.com/user-attachments/assets/82d41031-3548-42cb-8a6f-e9037fb76ea3"><br><sub><a href="https://www.firefly.io/products/ROC-RK3576-PC.html">Firefly ROC-RK3576-PC</a></sub></div> | `roc-pc` | |
 | Rockchip RK3576 EVB1 | `evb` | Official Rockchip evaluation board. Not available for sale. |
+| Anbernic RG Vita Pro | `anbernic-rg-vita-pro` | Handheld. Boots from microSD ahead of eMMC. U-Boot uses the generic RK3576 DT with its defconfig from `configs/u-boot-defconfigs/`; the touchscreen, analog sticks and fuel gauge come from `patches/linux/`. The vibrator buzzes once when U-Boot starts. |
 
 ---
 
