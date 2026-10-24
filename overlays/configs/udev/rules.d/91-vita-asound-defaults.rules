@@ -1,0 +1,7 @@
+# RG Vita Pro: until alsa-store has saved a mixer state of its own, start the codec from the
+# state captured on hardware (speakers and headphone jack enabled). Runs after Debian's
+# 90-alsa-restore.rules, which finds nothing to restore on a first boot. The card id is
+# the Vita's own, so this never matches another board.
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", KERNELS!="card*", \
+	ATTRS{id}=="rockchipes8388c", TEST!="/var/lib/alsa/asound.state", \
+	RUN+="/usr/sbin/alsactl -E HOME=/run/alsa -E XDG_RUNTIME_DIR=/run/alsa/runtime -f /usr/local/share/vita/asound.state restore $attr{device/number}"
