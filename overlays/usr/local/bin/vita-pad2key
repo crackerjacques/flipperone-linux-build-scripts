@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # RG Vita Pro: gamepad buttons -> keyboard + mouse buttons (evdev/uinput,
 # X11/Wayland-safe).
-import os, time, select, evdev
+import os, time, select, subprocess, evdev
 from evdev import ecodes as e, UInput
 
 DESKTOP_MAP = {
@@ -71,13 +71,24 @@ for _seq in COMBO.values():
 
 ui = UInput({e.EV_KEY: sorted(_keys)}, name="vita-pad2key")
 
+# Select+Start held this long swaps the screen between flipctl and Plasma. Run as a
+# unit of its own: the swap restarts this service, which would take a child with it.
+SWAP = {e.BTN_SELECT, e.BTN_START}
+SWAP_HOLD = 1.0
+held = set()
+swap_since = None
+
 while True:
     if not devs:
         devs = sources()
         if not devs:
             time.sleep(2)
             continue
-    r, _, _ = select.select(devs, [], [])
+    r, _, _ = select.select(devs, [], [], 0.1 if swap_since else None)
+    if swap_since and time.monotonic() - swap_since >= SWAP_HOLD:
+        swap_since = None
+        subprocess.Popen(["systemd-run", "--no-block", "--collect",
+                          "/usr/local/bin/vita-session", "toggle"])
     for fd in r:
         try:
             events = list(devs[fd].read())
@@ -89,6 +100,12 @@ while True:
         for ev in events:
             if ev.type != e.EV_KEY:
                 continue
+            if ev.code in SWAP and ev.value != 2:
+                if ev.value:
+                    held.add(ev.code)
+                else:
+                    held.discard(ev.code)
+                swap_since = time.monotonic() if held == SWAP else None
             if ev.code in COMBO:
                 if ev.value == 1:
                     seq = COMBO[ev.code]

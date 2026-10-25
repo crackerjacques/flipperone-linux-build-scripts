@@ -1,6 +1,7 @@
 # flipctl on the RG Vita Pro screen. The Vita has none of the Flipper One's SPI panel,
 # so flipctl.service is off there (flipctl.service.d/10-not-on-vita.conf); this shows
 # flipctl in a sway session on the main screen instead, scaled up to fill it.
+# vita-session swaps it for Plasma and back.
 [Unit]
 Description=flipctl on the RG Vita Pro screen, in sway
 ConditionFirmware=device-tree-compatible(anbernic,rg-vita-pro)
@@ -27,13 +28,13 @@ UtmpMode=user
 Environment=XDG_SESSION_TYPE=wayland
 Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/games
 
-# The screen belongs to another session in two profiles: @Desktop boots to
-# graphical.target, for Plasma, and @TV-Media-Box enables kodi.service.
-ExecCondition=/bin/sh -c '[ "$(systemctl get-default)" != graphical.target ] && ! systemctl -q is-enabled kodi.service'
+# This is what the Vita boots to, @Desktop included: sddm waits there until
+# vita-session hands it the screen. Only @TV-Media-Box keeps it, for kodi.service.
+ExecCondition=/bin/sh -c '! systemctl -q is-enabled kodi.service'
 # Pad buttons as flipctl's keys while it holds the screen, and back afterwards.
-ExecStartPre=+/bin/sh -c 'echo PAD2KEY_MODE=flipctl > /run/vita-pad2key.env; systemctl try-restart vita-pad2key.service'
+ExecStartPre=+/bin/sh -c 'echo PAD2KEY_MODE=flipctl > /run/vita-pad2key.env; systemctl --no-block try-restart vita-pad2key.service'
 ExecStart=/usr/bin/sway -c /usr/local/share/vita/sway-flipctl.conf
-ExecStopPost=+/bin/sh -c 'rm -f /run/vita-pad2key.env; systemctl try-restart vita-pad2key.service'
+ExecStopPost=+/bin/sh -c 'rm -f /run/vita-pad2key.env; systemctl --no-block try-restart vita-pad2key.service'
 Restart=always
 RestartSec=2
 

@@ -1,0 +1,38 @@
+#!/bin/sh
+# vita-session {flipctl|desktop|toggle} - choose what the RG Vita Pro screen shows.
+#
+# The Vita boots to flipctl (vita-flipctl.service). Plasma, on @Desktop, starts only
+# through here: sddm's drop-in skips it on the Vita unless /run/vita-desktop says it
+# was asked for. vita-pad2key runs "toggle" on a one-second Select+Start hold.
+set -e
+
+case "${1:-toggle}" in
+toggle)
+	if systemctl -q is-active vita-flipctl.service; then
+		set -- desktop
+	else
+		set -- flipctl
+	fi
+	;;
+esac
+
+case "$1" in
+desktop)
+	if [ ! -e /usr/lib/systemd/system/sddm.service ]; then
+		echo "vita-session: this profile has no desktop" >&2
+		exit 1
+	fi
+	touch /run/vita-desktop
+	systemctl stop vita-flipctl.service
+	systemctl start sddm.service
+	;;
+flipctl)
+	rm -f /run/vita-desktop
+	systemctl stop sddm.service 2>/dev/null || true
+	systemctl start vita-flipctl.service
+	;;
+*)
+	echo "usage: vita-session {flipctl|desktop|toggle}" >&2
+	exit 1
+	;;
+esac
