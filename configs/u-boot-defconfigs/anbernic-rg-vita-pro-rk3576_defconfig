@@ -9,7 +9,7 @@ CONFIG_DEBUG_UART_CLOCK=24000000
 CONFIG_DEBUG_UART=y
 # CONFIG_BOOTMETH_VBE is not set
 CONFIG_USE_PREBOOT=y
-CONFIG_PREBOOT="mw.l 0x2604405c 0xf0000000; gpio set C31; sleep 0.2; gpio clear C31"
+CONFIG_PREBOOT="setenv kernel_addr_r 0x40a00000; mw.l 0x2604405c 0xf0000000; gpio set C31; sleep 0.2; gpio clear C31"
 CONFIG_DEFAULT_FDT_FILE="rockchip/rk3576-anbernic-rg-vita-pro.dtb"
 # CONFIG_DISPLAY_CPUINFO is not set
 CONFIG_SPL_MAX_SIZE=0x40000
