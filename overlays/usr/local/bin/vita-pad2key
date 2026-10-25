@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # RG Vita Pro: gamepad buttons -> keyboard + mouse buttons (evdev/uinput,
 # X11/Wayland-safe).
-import time, select, evdev
+import os, time, select, evdev
 from evdev import ecodes as e, UInput
 
-MAP = {
+DESKTOP_MAP = {
     e.BTN_DPAD_UP: e.KEY_UP,     e.BTN_DPAD_DOWN: e.KEY_DOWN,
     e.BTN_DPAD_LEFT: e.KEY_LEFT, e.BTN_DPAD_RIGHT: e.KEY_RIGHT,
     e.BTN_SOUTH:  e.KEY_ENTER,
@@ -16,11 +16,34 @@ MAP = {
     e.BTN_TR:     e.KEY_PAGEDOWN,
 }
 
-COMBO = {
+DESKTOP_COMBO = {
     e.BTN_MODE:  (e.KEY_LEFTALT,  e.KEY_TAB),
     e.BTN_Z:     (e.KEY_LEFTALT,  e.KEY_TAB),
     e.BTN_NORTH: (e.KEY_LEFTCTRL, e.KEY_F4),
 }
+
+# flipctl's own keys (flipper-ui key.rs): arrows, Enter ok, Backspace back, Tab app
+# switch, and A Z X C V B for PTT, Escape, View, Power, Edit and Run.
+FLIPCTL_MAP = {
+    e.BTN_DPAD_UP: e.KEY_UP,     e.BTN_DPAD_DOWN: e.KEY_DOWN,
+    e.BTN_DPAD_LEFT: e.KEY_LEFT, e.BTN_DPAD_RIGHT: e.KEY_RIGHT,
+    e.BTN_SOUTH:  e.KEY_ENTER,
+    e.BTN_EAST:   e.KEY_BACKSPACE,
+    e.BTN_NORTH:  e.KEY_X,
+    e.BTN_WEST:   e.KEY_V,
+    e.BTN_SELECT: e.KEY_TAB,
+    e.BTN_MODE:   e.KEY_TAB,
+    e.BTN_START:  e.KEY_B,
+    e.BTN_TL:     e.KEY_Z,
+    e.BTN_TR:     e.KEY_C,
+    e.BTN_TL2:    e.KEY_A,
+}
+
+# vita-flipctl.service sets PAD2KEY_MODE=flipctl while it holds the screen.
+if os.environ.get("PAD2KEY_MODE") == "flipctl":
+    MAP, COMBO = FLIPCTL_MAP, {}
+else:
+    MAP, COMBO = DESKTOP_MAP, DESKTOP_COMBO
 ALL = set(MAP) | set(COMBO)
 
 def sources():
