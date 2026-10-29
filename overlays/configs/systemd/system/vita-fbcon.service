@@ -1,0 +1,15 @@
+# The text console on the RG Vita Pro screen. flipper-bls adds fbcon=map:1 for the
+# Flipper One, whose fb0 is the SPI panel and fb1 HDMI. The Vita's only screen is fb0,
+# so fbcon waits for an fb1 that never comes and the screen stays blank until sway or
+# Plasma starts. Map the consoles to fb0. The text comes out sideways, as fbcon does
+# not pick up the panel's rotation this way.
+# 93-vita-fbcon.rules starts this once fb0 appears.
+[Unit]
+Description=Text console on the RG Vita Pro screen
+ConditionFirmware=device-tree-compatible(anbernic,rg-vita-pro)
+DefaultDependencies=no
+After=dev-fb0.device
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'for c in 1 2 3 4 5 6; do con2fbmap $c 0; done'
