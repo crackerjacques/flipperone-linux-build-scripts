@@ -23,20 +23,21 @@ DESKTOP_COMBO = {
 }
 
 # flipctl's own keys (flipper-ui key.rs): arrows, Enter ok, Backspace back, Tab app
-# switch, and A Z X C V B for PTT, Escape, View, Power, Edit and Run.
+# switch, and A Z X C V B for PTT, Escape, View, Power, Edit and Run. Laid out after
+# the Flipper One: confirm and back on A and B as Anbernic labels them, PTT on the
+# top-left shoulder, Escape ("to main menu") on HOME and Power on MENU.
 FLIPCTL_MAP = {
     e.BTN_DPAD_UP: e.KEY_UP,     e.BTN_DPAD_DOWN: e.KEY_DOWN,
     e.BTN_DPAD_LEFT: e.KEY_LEFT, e.BTN_DPAD_RIGHT: e.KEY_RIGHT,
-    e.BTN_SOUTH:  e.KEY_ENTER,
-    e.BTN_EAST:   e.KEY_BACKSPACE,
+    e.BTN_EAST:   e.KEY_ENTER,
+    e.BTN_SOUTH:  e.KEY_BACKSPACE,
     e.BTN_NORTH:  e.KEY_X,
     e.BTN_WEST:   e.KEY_V,
     e.BTN_SELECT: e.KEY_TAB,
-    e.BTN_MODE:   e.KEY_TAB,
     e.BTN_START:  e.KEY_B,
-    e.BTN_TL:     e.KEY_Z,
-    e.BTN_TR:     e.KEY_C,
-    e.BTN_TL2:    e.KEY_A,
+    e.BTN_TL:     e.KEY_A,
+    e.KEY_HOME:   e.KEY_Z,
+    e.BTN_MODE:   e.KEY_C,
 }
 
 # vita-flipctl.service sets PAD2KEY_MODE=flipctl while it holds the screen.
