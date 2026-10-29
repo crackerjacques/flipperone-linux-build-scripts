@@ -50,9 +50,11 @@ done
 [ ! -d "$TFA_DIR" ] && [ x"$USE_BL31" = x"opensource" ] && git clone --depth 1 -b "$TFA_BRANCH" "$TFA_GIT" "$TFA_DIR"
 [ ! -d "$TEE_DIR" -a x"$USE_TEE" = x"yes" ] && git clone --depth 1 -b "$TEE_BRANCH" "$TEE_GIT" "$TEE_DIR"
 
-# Boards the U-Boot tree has no defconfig for (e.g. Anbernic RG Vita Pro, which
-# is generic-rk3576 with its upstream DT). Copied in before the board list is
-# globbed below, so BOARD=all picks them up too.
+# Boards the U-Boot tree has no defconfig for (e.g. Anbernic RG Vita Pro). Copied
+# in before the board list is globbed below, so BOARD=all picks them up too.
+# The Vita's is generic-rk3576 kept loadable by Android's SPL on the eMMC, which
+# boots u-boot.itb from SD when there is one: proper uncompressed (that SPL has no
+# zstd) and kernel_addr_r above the /memreserve/ it adds over U-Boot's image.
 cp "$BOARD_DEFCONFIGS"/*-rk3576_defconfig "$UBOOT_DIR"/configs/
 
 TEE=
