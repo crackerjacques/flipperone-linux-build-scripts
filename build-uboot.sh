@@ -51,8 +51,8 @@ done
 [ ! -d "$TEE_DIR" -a x"$USE_TEE" = x"yes" ] && git clone --depth 1 -b "$TEE_BRANCH" "$TEE_GIT" "$TEE_DIR"
 
 # Boards the U-Boot tree has no defconfig for (e.g. Anbernic RG Vita Pro, which
-# runs the generic RK3576 DT with its own fdtfile). Copied in before the board
-# list is globbed below, so BOARD=all picks them up too.
+# is generic-rk3576 with its upstream DT). Copied in before the board list is
+# globbed below, so BOARD=all picks them up too.
 cp "$BOARD_DEFCONFIGS"/*-rk3576_defconfig "$UBOOT_DIR"/configs/
 
 TEE=
