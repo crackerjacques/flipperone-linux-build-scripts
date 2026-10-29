@@ -462,11 +462,13 @@ actions:
       btrfs property set "$TOP/@stock-snapshots/@No-Graphics_{{ $buildid }}_stock" ro true
       btrfs subvolume snapshot "$TOP/@stock-snapshots/@No-Graphics_{{ $buildid }}_stock" "$TOP/@No-Graphics"
 
-  # Export each _stock as versioned send streams (receive-snapshot format): a FULL stream
-  # (_pack.zst) for all, plus an INCREMENTAL vs @Minimal (_inc_pack.zst) for the rest. @home
-  # (shared across profiles, version-independent) is exported as a FULL stream only.
+  # Export each _stock as versioned send streams (receive-snapshot format). @Minimal is the
+  # common base and the only profile sent in FULL (_pack.zst); every other profile ships only
+  # its INCREMENTAL against it (_inc_pack.zst), so the base is published once per build instead
+  # of once per profile. Receiving a profile therefore needs its @Minimal parent first. @home
+  # (shared across profiles, version-independent) is exported as a FULL stream.
   - action: run
-    description: Export each _stock as versioned send streams (full for all, plus incrementals) and @home
+    description: Export @Minimal as a full send stream, every other _stock as an incremental, plus @home
     chroot: false
     command: |
       set -eu
@@ -475,8 +477,9 @@ actions:
       for s in "$TOP"/@stock-snapshots/@*_stock; do
         [ -d "$s" ] || continue
         name=$(basename "$s")
-        btrfs send "$s" | zstd -T0 -{{ $packlevel }} -o "$ARTIFACTDIR/${name#@}_pack.zst"
-        if [ "$name" != "$MIN" ]; then
+        if [ "$name" = "$MIN" ]; then
+          btrfs send "$s" | zstd -T0 -{{ $packlevel }} -o "$ARTIFACTDIR/${name#@}_pack.zst"
+        else
           btrfs send -p "$TOP/@stock-snapshots/$MIN" "$s" | zstd -T0 -{{ $packlevel }} -o "$ARTIFACTDIR/${name#@}_inc_pack.zst"
         fi
       done
