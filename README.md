@@ -319,6 +319,28 @@ rockusb write-bmap out/debian-512-rock-4d-*.img.zst
 rockusb reset-device
 ```
 
+##### Flashing Anbernic RG Vita Pro eMMC
+
+The RG Vita Pro has no MASKROM button, and its BootROM always runs a valid loader from eMMC first, so Maskrom has to be entered from the U-Boot console on the debug UART (1500000 baud). The UART is only reachable on the mainboard: open the case and solder wires or a connector to the UART pads. `sudo reboot maskrom` from Linux does not work on this board.
+
+Connect the Type C port to the host computer, interrupt autoboot on the UART and run:
+
+```
+mw.l 0x26024040 0xef08a53c
+mw.l 0x26026200 0xef08a53c
+reset -w
+```
+
+This puts the BootROM's download flag (`BOOT_BROM_DOWNLOAD`) in the two registers that carry it across a reset. Use `reset -w`: a plain `reset` drives the reset output, which clears them.
+
+Then flash as usual:
+
+```bash
+rockusb download-boot out/u-boot/anbernic-rg-vita-pro/rk3576_loader_v*.bin
+rockusb write-bmap out/images/debian-512-anbernic-rg-vita-pro-*.img.zst
+rockusb reset-device
+```
+
 ---
 
 ## How to contribute
